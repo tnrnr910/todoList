@@ -67,8 +67,9 @@ button:hover {
   padding: 20px;
   box-sizing: border-box;
 }
-.todo a {
-  margin-bottom: 25px;
+.link-unchanged {
+  color: inherit;
+  text-decoration: none;
 }
 .todo h3 {
   margin-top: 25px;

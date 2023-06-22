@@ -1,0 +1,48 @@
+.todo-details-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.todo-details {
+  max-width: 600px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f7f7f7;
+  text-align: center;
+}
+
+.todo-details h2 {
+  margin-top: 0;
+}
+
+.todo-info {
+  margin-bottom: 20px;
+}
+
+.todo-id {
+  font-weight: bold;
+}
+
+.todo-title {
+  margin: 10px 0;
+}
+
+.todo-body {
+  color: #666;
+}
+
+.go-back-button {
+  text-align: center;
+}
+
+.go-back-button button {
+  padding: 8px 16px;
+  border: none;
+  background-color: #ccc;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
