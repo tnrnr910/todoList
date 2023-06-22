@@ -23,9 +23,9 @@ const TodoList = ({
         .filter((todo) => todo.isDone === isDone)
         .map((todo) => (
           <div className={todoClass} key={todo.id}>
+            <Link to={`/todos/${todo.id}`}>상세보기</Link>
             <h3>{todo.title}</h3>
             <p>{todo.body}</p>
-            <Link to={`/todos/${todo.id}`}>상세보기</Link>
             <button onClick={() => toggleTodoStatus(todo.id)}>
               {todo.isDone ? "취소" : "완료"}
             </button>

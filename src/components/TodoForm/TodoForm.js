@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { connect } from "react-redux";
 import { addTodo } from "../../actions/todoActions";
 import "./TodoForm.css";
+import { v4 as uuidv4 } from "uuid";
 
 const TodoForm = ({ addTodo }) => {
   const [title, setTitle] = useState("");
@@ -22,6 +23,7 @@ const TodoForm = ({ addTodo }) => {
       return;
     }
     const newTodo = {
+      id: uuidv4(),
       title,
       body,
       isDone: false,
