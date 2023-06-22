@@ -1,107 +1,153 @@
+import React from "react";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import "./App.css";
+import { createStore } from "redux";
+import { Provider, connect } from "react-redux";
 
-function App() {
-  // 상태변수들
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [todos, setTodos] = useState([]);
+// Redux 상태 관리를 위한 액션 타입 정의
+const ADD_TODO = "ADD_TODO";
+const TOGGLE_TODO_STATUS = "TOGGLE_TODO_STATUS";
+const DELETE_TODO = "DELETE_TODO";
 
-  // 인풋값 변경
-  const onChangeHandler = (e) => {
-    if (e.target.name === "title") {
-      setTitle(e.target.value);
-    } else if (e.target.name === "body") {
-      setBody(e.target.value);
-    }
-  };
+// 액션 생성자 함수 정의
+const addTodo = (newTodo) => ({
+  type: ADD_TODO,
+  payload: newTodo,
+});
 
-  // 폼 제출
-  const onSubmitHandler = (e) => {
-    e.preventDefault();
-    if (title.trim() === "" || body.trim() === "") {
-      return;
-    }
+const toggleTodoStatus = (id) => ({
+  type: TOGGLE_TODO_STATUS,
+  payload: id,
+});
 
-    const newTodo = {
-      id: uuidv4(), // uuid를 사용하여 고유한 id 생성
-      title: title,
-      body: body,
-      isDone: false,
-    };
+const deleteTodo = (id) => ({
+  type: DELETE_TODO,
+  payload: id,
+});
 
-    setTodos([...todos, newTodo]);
-    setTitle("");
-    setBody("");
-  };
+// 초기 상태와 리듀서 함수 정의
+const initialState = {
+  title: "",
+  body: "",
+  todos: [],
+};
 
-  // 투두 완료
-  const toggleTodoStatus = (id) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, isDone: !todo.isDone } : todo
-      )
-    );
-  };
+const rootReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case ADD_TODO:
+      return {
+        ...state,
+        todos: [...state.todos, action.payload],
+        title: "",
+        body: "",
+      };
+    case TOGGLE_TODO_STATUS:
+      return {
+        ...state,
+        todos: state.todos.map((todo) =>
+          todo.id === action.payload ? { ...todo, isDone: !todo.isDone } : todo
+        ),
+      };
+    case DELETE_TODO:
+      return {
+        ...state,
+        todos: state.todos.filter((todo) => todo.id !== action.payload),
+      };
+    default:
+      return state;
+  }
+};
 
-  // 투두 삭제
-  const deleteTodo = (id) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-  };
+// 컴포넌트 정의
+const TodoForm = ({ title, body, onChangeHandler, onSubmitHandler }) => (
+  <form onSubmit={onSubmitHandler}>
+    <input
+      type="text"
+      name="title"
+      placeholder="제목"
+      value={title}
+      onChange={onChangeHandler}
+    />
+    <textarea
+      name="body"
+      placeholder="내용"
+      value={body}
+      onChange={onChangeHandler}
+    />
+    <button type="submit">추가하기</button>
+  </form>
+);
 
-  // 컴포넌트 렌더링
-  return (
-    <div className="App">
-      <h1>Todo LIst App</h1>
-      <div className="container">
-        <form onSubmit={onSubmitHandler}>
-          <input
-            type="text"
-            name="title"
-            placeholder="제목"
-            value={title}
-            onChange={onChangeHandler}
-          />
-          <textarea
-            name="body"
-            placeholder="내용"
-            value={body}
-            onChange={onChangeHandler}
-          />
-          <button type="submit">추가하기</button>
-        </form>
-
-        <div className="todos">
-          <h2>진행중</h2>
-          {todos
-            .filter((todo) => !todo.isDone)
-            .map((todo) => (
-              <div className="todo" key={todo.id}>
-                <h3>{todo.title}</h3>
-                <p>{todo.body}</p>
-                <button onClick={() => toggleTodoStatus(todo.id)}>
-                  {todo.isDone ? "취소" : "완료"}
-                </button>
-                <button onClick={() => deleteTodo(todo.id)}>삭제</button>
-              </div>
-            ))}
-          <h2>완료</h2>
-          {todos
-            .filter((todo) => todo.isDone)
-            .map((todo) => (
-              <div className="todo" key={todo.id}>
-                <h3>{todo.title}</h3>
-                <p>{todo.body}</p>
-                <button onClick={() => toggleTodoStatus(todo.id)}>
-                  {todo.isDone ? "취소" : "완료"}
-                </button>
-                <button onClick={() => deleteTodo(todo.id)}>삭제</button>
-              </div>
-            ))}
+const TodoList = ({
+  todos,
+  toggleTodoStatus,
+  deleteTodo,
+  isDone,
+  containerClass,
+  todoClass,
+}) => (
+  <div className={containerClass}>
+    <h2>{isDone ? "완료" : "진행중"}</h2>
+    {todos
+      .filter((todo) => todo.isDone === isDone)
+      .map((todo) => (
+        <div className={todoClass} key={todo.id}>
+          <h3>{todo.title}</h3>
+          <p>{todo.body}</p>
+          <button onClick={() => toggleTodoStatus(todo.id)}>
+            {todo.isDone ? "취소" : "완료"}
+          </button>
+          <button onClick={() => deleteTodo(todo.id)}>삭제</button>
         </div>
-      </div>
-    </div>
+      ))}
+  </div>
+);
+
+// 컨테이너 컴포넌트 정의
+const ConnectedTodoForm = connect(null, { addTodo })(TodoForm);
+
+const ConnectedTodoList = connect(
+  (state) => ({
+    todos: state.todos,
+  }),
+  { toggleTodoStatus, deleteTodo }
+)(TodoList);
+
+// 스토어 생성
+const store = createStore(rootReducer);
+
+// App 컴포넌트 정의
+const App = () => {
+  return (
+    <Provider store={store}>
+      <Router>
+        <div className="App">
+          <h1>Todo List App</h1>
+          <Route
+            exact
+            path="/"
+            render={() => (
+              <div className="container">
+                <ConnectedTodoForm />
+                <ConnectedTodoList
+                  isDone={false}
+                  containerClass="todos"
+                  todoClass="todo"
+                />
+                <ConnectedTodoList
+                  isDone={true}
+                  containerClass="todos"
+                  todoClass="todo"
+                />
+              </div>
+            )}
+          />
+        </div>
+      </Router>
+    </Provider>
   );
-}
+};
+
 export default App;
