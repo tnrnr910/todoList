@@ -7,7 +7,7 @@ const TodoDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const todo = useSelector((state) =>
-    state.todos.find((todo) => todo.id === parseInt(id))
+    state.todos.find((todo) => todo.id === id)
   );
 
   const handleGoBack = () => {
