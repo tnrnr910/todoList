@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 
 function App() {
   // 상태변수들
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [todos, setTodos] = useState();
+  const [todos, setTodos] = useState([]);
+
   // 인풋값 변경
   const onChangeHandler = (e) => {
     if (e.target.name === "title") {
@@ -14,22 +16,26 @@ function App() {
       setBody(e.target.value);
     }
   };
-  // 폼제출
+
+  // 폼 제출
   const onSubmitHandler = (e) => {
     e.preventDefault();
     if (title.trim() === "" || body.trim() === "") {
       return;
     }
+
     const newTodo = {
-      id: todos.length,
+      id: uuidv4(), // uuid를 사용하여 고유한 id 생성
       title: title,
       body: body,
       isDone: false,
     };
+
     setTodos([...todos, newTodo]);
     setTitle("");
     setBody("");
   };
+
   // 투두 완료
   const toggleTodoStatus = (id) => {
     setTodos(
@@ -38,11 +44,13 @@ function App() {
       )
     );
   };
+
   // 투두 삭제
   const deleteTodo = (id) => {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
 
+  // 컴포넌트 렌더링
   return (
     <div className="App">
       <h1>Todo LIst App</h1>
@@ -78,7 +86,7 @@ function App() {
                 <button onClick={() => deleteTodo(todo.id)}>삭제</button>
               </div>
             ))}
-          ;<h2>완료</h2>
+          <h2>완료</h2>
           {todos
             .filter((todo) => todo.isDone)
             .map((todo) => (
@@ -91,7 +99,6 @@ function App() {
                 <button onClick={() => deleteTodo(todo.id)}>삭제</button>
               </div>
             ))}
-          ;
         </div>
       </div>
     </div>
